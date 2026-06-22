@@ -28,10 +28,10 @@ function QuickAction({ href, icon, label, description }: QuickActionProps) {
   return (
     <Link href={href} asChild>
       <Pressable
-        style={[
+        style={StyleSheet.flatten([
           styles.quickAction,
           { backgroundColor: theme.surfaceMuted, borderColor: theme.border },
-        ]}>
+        ])}>
         <View style={[styles.quickIcon, { backgroundColor: theme.primarySoft }]}>
           <AppIcon name={icon} size={23} tintColor={theme.primary} />
         </View>
