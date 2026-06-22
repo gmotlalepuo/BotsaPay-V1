@@ -25,7 +25,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(
             {
               color: theme.text,
               borderColor: error ? theme.danger : theme.border,
-              backgroundColor: theme.backgroundElement,
+              backgroundColor: theme.surfaceMuted,
             },
             style,
           ]}

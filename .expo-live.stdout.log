@@ -1,0 +1,21 @@
+
+> botsapay-v1@1.0.0 android
+> expo start --android --clear
+
+env: load .env
+env: export EXPO_PUBLIC_API_BASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY EXPO_PUBLIC_SUPABASE_URL
+Starting project at C:\Users\26774\OneDrive\Documents\MOBILE APPS\BotsaPay-V1
+Using src/app as the root directory for Expo Router.
+React Compiler enabled
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+› Opening exp://192.168.1.151:8081 on Pixel_6a
+- Fetching Expo Go
+- Installing Expo Go on Pixel_6a
+Waiting on http://localhost:8081
+1 package may need updating. Run npx expo install --check for details.
+Logs for your project will appear below.
+Android Bundled 85100ms node_modules\expo-router\entry.js (1834 modules)
+Android Bundled 1591ms node_modules\expo-router\entry.js (1 module)
+Android Bundled 1622ms node_modules\expo-router\entry.js (1 module)

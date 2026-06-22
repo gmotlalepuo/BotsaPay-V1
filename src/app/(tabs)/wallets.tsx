@@ -14,7 +14,7 @@ export default function WalletsTab() {
   return (
     <Screen title="Wallets" subtitle="Create and manage your BotsaPay wallets.">
       <Link href="/wallet/create" asChild>
-        <AppButton label="Create wallet" />
+        <AppButton label="Create wallet" icon={{ ios: 'plus', android: 'add' }} />
       </Link>
       {wallets.isLoading && <ActivityIndicator />}
       {wallets.error && <StateMessage title="Wallets unavailable" message={getErrorMessage(wallets.error)} />}

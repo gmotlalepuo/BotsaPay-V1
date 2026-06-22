@@ -35,7 +35,8 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="wallet" />
+          <Stack.Screen name="wallet/create" />
+          <Stack.Screen name="wallet/[id]" />
           <Stack.Screen name="transfer" />
           <Stack.Screen name="qr" />
           <Stack.Screen name="topup" />

@@ -66,19 +66,23 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: MaxContentWidth,
     alignSelf: 'center',
-    padding: Spacing.three,
+    paddingHorizontal: Spacing.three,
+    paddingTop: Spacing.two,
+    paddingBottom: Spacing.five,
     gap: Spacing.three,
   },
   header: {
     gap: Spacing.one,
-    paddingTop: Spacing.two,
+    paddingTop: Spacing.three,
   },
   title: {
-    fontSize: 30,
-    lineHeight: 38,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.7,
   },
   subtitle: {
     maxWidth: 560,
+    lineHeight: 21,
   },
   footer: {
     padding: Spacing.three,

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
+import { AppIcon, type AppIconName } from '@/components/ui/app-icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -15,6 +16,7 @@ type AppButtonProps = PressableProps & {
   label: string;
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   loading?: boolean;
+  icon?: AppIconName;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -22,6 +24,7 @@ export function AppButton({
   label,
   variant = 'primary',
   loading,
+  icon,
   disabled,
   style,
   ...props
@@ -53,9 +56,12 @@ export function AppButton({
       {loading ? (
         <ActivityIndicator color={color} />
       ) : (
-        <ThemedText type="smallBold" style={{ color }}>
-          {label}
-        </ThemedText>
+        <>
+          {icon && <AppIcon name={icon} size={19} tintColor={color} />}
+          <ThemedText type="smallBold" style={{ color }}>
+            {label}
+          </ThemedText>
+        </>
       )}
     </Pressable>
   );
@@ -68,6 +74,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+    gap: Spacing.two,
     borderWidth: 1,
   },
   ghost: {

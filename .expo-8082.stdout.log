@@ -1,0 +1,15 @@
+
+> botsapay-v1@1.0.0 android
+> expo start --android --port 8082
+
+env: load .env
+env: export EXPO_PUBLIC_API_BASE_URL EXPO_PUBLIC_SUPABASE_ANON_KEY EXPO_PUBLIC_SUPABASE_URL
+Starting project at C:\Users\26774\OneDrive\Documents\MOBILE APPS\BotsaPay-V1
+Using src/app as the root directory for Expo Router.
+React Compiler enabled
+Starting Metro Bundler
+
+› Opening exp://192.168.1.151:8082 on Pixel_6a
+Waiting on http://localhost:8082
+1 package may need updating. Run npx expo install --check for details.
+Logs for your project will appear below.
