@@ -1,4 +1,12 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(lsof -iTCP:8081 -sTCP:LISTEN -n -P)",
+      "WebSearch",
+      "Bash(git check-ignore *)",
+      "Bash(node -e \"try{console.log\\(require\\('expo/package.json'\\).engines||'n/a'\\)}catch\\(e\\){console.log\\('n/a'\\)}\")"
+    ]
+  },
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   }
