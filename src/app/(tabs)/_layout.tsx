@@ -1,5 +1,6 @@
 import { Redirect, Tabs } from 'expo-router';
 
+import { useNotifications } from '@/api/hooks';
 import { AppIcon, type AppIconName } from '@/components/ui/app-icon';
 import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/stores/auth-store';
@@ -13,12 +14,20 @@ const tabIcons: Record<string, AppIconName> = {
 };
 
 export default function TabsLayout() {
-  const theme = useTheme();
   const session = useAuthStore((state) => state.session);
 
   if (!session) {
     return <Redirect href="/(auth)/login" />;
   }
+
+  return <AuthenticatedTabs />;
+}
+
+function AuthenticatedTabs() {
+  const theme = useTheme();
+  const notifications = useNotifications();
+  const unreadCount = notifications.data?.filter((item) => !item.is_read).length ?? 0;
+  const unreadBadge = unreadCount > 99 ? '99+' : unreadCount || undefined;
 
   return (
     <Tabs
@@ -60,7 +69,17 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="notifications"
-        options={{ title: 'Alerts', tabBarIcon: ({ color, size }) => <AppIcon name={tabIcons.notifications} size={size} tintColor={color} /> }}
+        options={{
+          title: 'Alerts',
+          tabBarBadge: unreadBadge,
+          tabBarBadgeStyle: {
+            backgroundColor: theme.accent,
+            color: theme.primaryText,
+            fontSize: 10,
+            fontWeight: '800',
+          },
+          tabBarIcon: ({ color, size }) => <AppIcon name={tabIcons.notifications} size={size} tintColor={color} />,
+        }}
       />
       <Tabs.Screen
         name="profile"
