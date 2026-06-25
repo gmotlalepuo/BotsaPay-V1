@@ -8,6 +8,11 @@ type CheckoutReturnInput = {
   referenceId?: string;
 };
 
+function appendCheckoutSessionTemplate(url: string) {
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}session_id={CHECKOUT_SESSION_ID}`;
+}
+
 export function createCheckoutReturnUrls({ flow, referenceId }: CheckoutReturnInput) {
   const baseParams = {
     flow,
@@ -22,7 +27,7 @@ export function createCheckoutReturnUrls({ flow, referenceId }: CheckoutReturnIn
   });
 
   return {
-    successUrl,
+    successUrl: flow === 'topup' ? appendCheckoutSessionTemplate(successUrl) : successUrl,
     cancelUrl,
     redirectUrl: Linking.createURL('/checkout/return'),
   };
@@ -43,5 +48,6 @@ export function parseCheckoutReturnUrl(url: string) {
     status: typeof queryParams.status === 'string' ? queryParams.status : undefined,
     flow: typeof queryParams.flow === 'string' ? queryParams.flow : undefined,
     referenceId: typeof queryParams.referenceId === 'string' ? queryParams.referenceId : undefined,
+    sessionId: typeof queryParams.session_id === 'string' ? queryParams.session_id : undefined,
   };
 }

@@ -179,6 +179,20 @@ export async function createTopUpCheckout(input: { wallet_id: string; amount: nu
   return data.url;
 }
 
+export async function reconcileTopUpSession(sessionId: string) {
+  const { data } = await apiClient.post<{
+    credited: boolean;
+    already_credited?: boolean;
+    amount?: number;
+    reference_id?: string;
+    wallet_id?: string;
+    reason?: string;
+  }>('/api/payments/reconcile-session', {
+    session_id: sessionId,
+  });
+  return data;
+}
+
 export async function getNotifications(unread?: boolean) {
   const { data } = await apiClient.get<{ notifications: NotificationItem[] }>('/api/notifications', {
     params: unread ? { unread: true } : undefined,

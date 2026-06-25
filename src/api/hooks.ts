@@ -15,6 +15,7 @@ import {
   getWalletDetail,
   getWallets,
   renameWallet,
+  reconcileTopUpSession,
   resolveQrCode,
   sendTransfer,
   updateNotifications,
@@ -138,6 +139,18 @@ export function useCreateGuestCardCheckout() {
 
 export function useCreateTopUpCheckout() {
   return useMutation({ mutationFn: createTopUpCheckout });
+}
+
+export function useReconcileTopUpSession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: reconcileTopUpSession,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wallets });
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
+    },
+  });
 }
 
 export function useNotifications() {
