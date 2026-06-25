@@ -1,7 +1,7 @@
 import { Link } from 'expo-router';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { useQrCodes, useUpdateQrCode, useWallets } from '@/api/hooks';
+import { useDeleteQrCode, useQrCodes, useUpdateQrCode, useWallets } from '@/api/hooks';
 import { ThemedText } from '@/components/themed-text';
 import { AppButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -24,6 +24,7 @@ export default function QrListScreen() {
   const qrCodes = useQrCodes();
   const wallets = useWallets();
   const update = useUpdateQrCode();
+  const remove = useDeleteQrCode();
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
   const walletById = useMemo(
     () => new Map((wallets.data ?? []).map((wallet) => [wallet.id, wallet])),
@@ -33,6 +34,21 @@ export default function QrListScreen() {
     if (!selectedWalletId) return qrCodes.data ?? [];
     return (qrCodes.data ?? []).filter((qr) => qr.wallet_id === selectedWalletId);
   }, [qrCodes.data, selectedWalletId]);
+
+  function confirmDelete(qrId: string, description: string) {
+    Alert.alert(
+      'Delete QR code?',
+      `Delete "${description}"? This cannot be undone. QR codes with completed payments should be deactivated instead.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => remove.mutate(qrId),
+        },
+      ],
+    );
+  }
 
   return (
     <Screen title="QR payments" subtitle="Create, view, activate, and deactivate wallet payment requests.">
@@ -119,6 +135,12 @@ export default function QrListScreen() {
             variant="secondary"
             loading={update.isPending}
             onPress={() => update.mutate({ qrCodeId: qr.id, isActive: !qr.is_active })}
+          />
+          <AppButton
+            label="Delete QR code"
+            variant="danger"
+            loading={remove.isPending}
+            onPress={() => confirmDelete(qr.id, qr.description)}
           />
         </Card>
         );

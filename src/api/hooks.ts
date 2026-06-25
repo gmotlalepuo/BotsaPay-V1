@@ -7,6 +7,7 @@ import {
   createTopUpCheckout,
   createWallet,
   deleteNotification,
+  deleteQrCode,
   getComplaints,
   getNotifications,
   getProfile,
@@ -120,6 +121,14 @@ export function useUpdateQrCode() {
   return useMutation({
     mutationFn: ({ qrCodeId, isActive }: { qrCodeId: string; isActive: boolean }) =>
       updateQrCode(qrCodeId, isActive),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.qrCodes }),
+  });
+}
+
+export function useDeleteQrCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteQrCode,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.qrCodes }),
   });
 }

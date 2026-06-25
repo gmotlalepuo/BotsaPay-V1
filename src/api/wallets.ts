@@ -144,6 +144,11 @@ export async function updateQrCode(qrCodeId: string, isActive: boolean) {
   return data.qrCode;
 }
 
+export async function deleteQrCode(qrCodeId: string) {
+  const { data } = await apiClient.delete<{ message: string }>(`/api/qr-codes/${qrCodeId}`);
+  return data;
+}
+
 export async function resolveQrCode(token: string) {
   const { data } = await apiClient.get<ResolvedQr>(`/api/qr-codes/resolve/${token}`);
   return data;
