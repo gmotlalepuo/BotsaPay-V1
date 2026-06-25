@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import * as Crypto from 'expo-crypto';
 
 export function formatMoney(amount: number | string | null | undefined, currency = 'BWP') {
   const value = Number(amount ?? 0);
@@ -22,11 +23,24 @@ export function getDisplayName(firstName?: string | null, lastName?: string | nu
 }
 
 export function createIdempotencyKey(prefix = 'mobile') {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+  return `${prefix}-${Crypto.randomUUID()}`;
 }
 
 export function extractQrToken(value: string) {
   const trimmed = value.trim();
+  const tokenFromUrl = (() => {
+    try {
+      const parsed = new URL(trimmed);
+      return parsed.searchParams.get('token');
+    } catch {
+      return null;
+    }
+  })();
+
+  if (tokenFromUrl) {
+    return tokenFromUrl;
+  }
+
   const match = trimmed.match(/\/pay\/([^/?#]+)/);
 
   if (match?.[1]) {

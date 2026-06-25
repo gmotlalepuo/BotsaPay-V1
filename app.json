@@ -1,15 +1,19 @@
 {
   "expo": {
-    "name": "BotsaPay-V1",
-    "slug": "BotsaPay-V1",
+    "name": "BotsaPay",
+    "slug": "botsapay",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "botsapayv1",
+    "scheme": "botsapay",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.anonymous.BotsaPay-V1"
+      "bundleIdentifier": "com.botsapay.mobile",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "BotsaPay uses Face ID to confirm sensitive wallet and payment actions.",
+        "NSPhotoLibraryUsageDescription": "BotsaPay needs photo library access so you can choose a profile picture."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +22,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false,
+      "package": "com.botsapay.mobile",
+      "predictiveBackGestureEnabled": true,
       "permissions": [
         "android.permission.CAMERA"
       ]
@@ -37,6 +42,12 @@
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           }
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow BotsaPay to use Face ID to confirm sensitive wallet and payment actions."
         }
       ],
       "expo-secure-store",

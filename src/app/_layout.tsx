@@ -1,6 +1,6 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Redirect, Stack, useSegments } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View, useColorScheme } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -12,6 +12,8 @@ import { useAuthStore } from '@/stores/auth-store';
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const initialized = useAuthStore((state) => state.initialized);
+  const session = useAuthStore((state) => state.session);
+  const segments = useSegments();
   const [queryClient] = useState(() => new QueryClient());
 
   useEffect(() => {
@@ -29,6 +31,16 @@ export default function RootLayout() {
     );
   }
 
+  const isAuthRoute = segments[0] === '(auth)';
+
+  if (!session && !isAuthRoute) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  if (session && isAuthRoute) {
+    return <Redirect href="/(tabs)/home" />;
+  }
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <QueryClientProvider client={queryClient}>
@@ -43,6 +55,7 @@ export default function RootLayout() {
           <Stack.Screen name="topup" />
           <Stack.Screen name="complaints" />
           <Stack.Screen name="settings" />
+          <Stack.Screen name="checkout/return" />
         </Stack>
         <StatusBar style="auto" />
       </QueryClientProvider>

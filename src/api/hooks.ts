@@ -20,6 +20,7 @@ import {
   updateNotifications,
   updateProfile,
   updateQrCode,
+  uploadProfileAvatar,
 } from '@/api/wallets';
 
 export const queryKeys = {
@@ -41,6 +42,14 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateProfile,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.profile }),
+  });
+}
+
+export function useUploadProfileAvatar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: uploadProfileAvatar,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.profile }),
   });
 }

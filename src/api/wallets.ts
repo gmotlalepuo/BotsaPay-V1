@@ -1,4 +1,5 @@
 import { apiClient } from '@/api/client';
+import { supabase } from '@/services/supabase';
 import type {
   Complaint,
   NotificationItem,
@@ -8,6 +9,8 @@ import type {
   Transaction,
   Wallet,
 } from '@/types/wallet';
+import { env, isApiConfigured } from '@/utils/env';
+import { AuthenticationError, ConfigurationError } from '@/utils/errors';
 
 export async function getProfile() {
   const { data } = await apiClient.get<{ profile: Profile }>('/api/users/profile');
@@ -18,9 +21,59 @@ export async function updateProfile(input: {
   first_name: string;
   last_name: string;
   phone_number: string;
+  date_of_birth?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
 }) {
   const { data } = await apiClient.put<{ profile: Profile }>('/api/users/profile', input);
   return data.profile;
+}
+
+export async function uploadProfileAvatar(input: { uri: string; fileName?: string; mimeType?: string }) {
+  if (!isApiConfigured) {
+    throw new ConfigurationError('API base URL is not configured yet. Add EXPO_PUBLIC_API_BASE_URL.');
+  }
+
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData.session?.access_token;
+  if (!token) {
+    throw new AuthenticationError();
+  }
+
+  const formData = new FormData();
+  formData.append('avatar', {
+    uri: input.uri,
+    name: input.fileName ?? 'profile-avatar.jpg',
+    type: input.mimeType ?? 'image/jpeg',
+  } as unknown as File);
+
+  const response = await fetch(`${env.apiBaseUrl}/api/users/profile/avatar`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const data = (await response.json().catch(() => ({}))) as {
+    profile?: Profile;
+    avatar_url?: string;
+    error?: string;
+    userMessage?: string;
+  };
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error('Profile photo upload is not available on the server yet. Please deploy the latest web backend changes.');
+    }
+    throw new Error(data.userMessage ?? data.error ?? 'Could not upload profile photo.');
+  }
+
+  return data.profile ?? data.avatar_url;
 }
 
 export async function getWallets() {
@@ -96,17 +149,32 @@ export async function resolveQrCode(token: string) {
   return data;
 }
 
-export async function createGuestCardCheckout(qrCodeId: string) {
+type CheckoutReturnUrls = {
+  success_url?: string;
+  cancel_url?: string;
+  return_url?: string;
+  mobile_return_url?: string;
+};
+
+export async function createGuestCardCheckout(input: { qrCodeId: string } & CheckoutReturnUrls) {
   const { data } = await apiClient.post<{ url: string }>('/api/qr-codes/card-checkout', {
-    qr_code_id: qrCodeId,
+    qr_code_id: input.qrCodeId,
+    success_url: input.success_url,
+    cancel_url: input.cancel_url,
+    return_url: input.return_url,
+    mobile_return_url: input.mobile_return_url,
   });
   return data.url;
 }
 
-export async function createTopUpCheckout(input: { wallet_id: string; amount: number }) {
+export async function createTopUpCheckout(input: { wallet_id: string; amount: number } & CheckoutReturnUrls) {
   const { data } = await apiClient.post<{ url: string }>('/api/payments/create-checkout', {
     wallet_id: input.wallet_id,
     amount: input.amount,
+    success_url: input.success_url,
+    cancel_url: input.cancel_url,
+    return_url: input.return_url,
+    mobile_return_url: input.mobile_return_url,
   });
   return data.url;
 }

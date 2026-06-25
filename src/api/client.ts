@@ -2,7 +2,7 @@ import { create } from 'axios';
 
 import { supabase } from '@/services/supabase';
 import { env, isApiConfigured } from '@/utils/env';
-import { ConfigurationError } from '@/utils/errors';
+import { AuthenticationError, ConfigurationError } from '@/utils/errors';
 
 export const apiClient = create({
   baseURL: env.apiBaseUrl || 'https://api.placeholder.local',
@@ -21,9 +21,11 @@ apiClient.interceptors.request.use(async (config) => {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (!token) {
+    throw new AuthenticationError();
   }
+
+  config.headers.Authorization = `Bearer ${token}`;
 
   return config;
 });

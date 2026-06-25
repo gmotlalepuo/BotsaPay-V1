@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { useProfile, useWallets } from '@/api/hooks';
 import { ThemedText } from '@/components/themed-text';
@@ -53,6 +53,12 @@ export default function HomeTab() {
   const wallets = useWallets();
   const missingConfig = getMissingConfig();
   const primaryWallet = wallets.data?.[0];
+  const displayName = getDisplayName(profile.data?.first_name, profile.data?.last_name, profile.data?.email);
+  const initials = displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('');
 
   return (
     <Screen>
@@ -60,14 +66,20 @@ export default function HomeTab() {
         <View style={styles.heroCopy}>
           <ThemedText type="smallBold" style={{ color: theme.primary }}>WELCOME BACK</ThemedText>
           <ThemedText type="subtitle" style={styles.greeting}>
-            Hello, {getDisplayName(profile.data?.first_name, profile.data?.last_name, profile.data?.email)}
+            Hello, {displayName}
           </ThemedText>
           <ThemedText themeColor="textSecondary" style={styles.heroSubtitle}>
             Here is your money at a glance.
           </ThemedText>
         </View>
         <View style={[styles.avatar, { backgroundColor: theme.primarySoft }]}>
-          <AppIcon name={{ ios: 'person.fill', android: 'person' }} size={26} tintColor={theme.primary} />
+          {profile.data?.avatar_url ? (
+            <Image source={{ uri: profile.data.avatar_url }} style={styles.avatarImage} />
+          ) : (
+            <ThemedText type="smallBold" style={{ color: theme.primary }}>
+              {initials || 'BP'}
+            </ThemedText>
+          )}
         </View>
       </View>
       {missingConfig.length > 0 && (
@@ -165,6 +177,12 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   actions: {
     flexDirection: 'row',

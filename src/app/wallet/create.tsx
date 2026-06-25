@@ -29,6 +29,12 @@ export default function CreateWalletScreen() {
         <TextField label="Wallet name" value={name} onChangeText={setName} />
         <TextField label="Currency" value={currency} onChangeText={setCurrency} autoCapitalize="characters" />
         <AppButton label="Create wallet" loading={createWallet.isPending} onPress={handleCreate} />
+        <AppButton
+          label="Cancel"
+          variant="ghost"
+          disabled={createWallet.isPending}
+          onPress={() => router.back()}
+        />
       </Card>
     </Screen>
   );

@@ -3,6 +3,8 @@ import { useAuthStore } from '@/stores/auth-store';
 import { isSupabaseConfigured } from '@/utils/env';
 import { ConfigurationError } from '@/utils/errors';
 
+let authSubscription: { unsubscribe: () => void } | null = null;
+
 function assertSupabaseConfigured() {
   if (!isSupabaseConfigured) {
     throw new ConfigurationError(
@@ -21,9 +23,11 @@ export async function initializeAuth() {
   useAuthStore.getState().setSession(data.session);
   useAuthStore.getState().setInitialized(true);
 
-  supabase.auth.onAuthStateChange((_event, session) => {
+  authSubscription?.unsubscribe();
+  const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
     useAuthStore.getState().setSession(session);
   });
+  authSubscription = listener.subscription;
 }
 
 export async function signIn(email: string, password: string) {
@@ -85,5 +89,7 @@ export async function resetPassword(email: string) {
 export async function signOut() {
   assertSupabaseConfigured();
   await supabase.auth.signOut();
+  authSubscription?.unsubscribe();
+  authSubscription = null;
   useAuthStore.getState().setSession(null);
 }

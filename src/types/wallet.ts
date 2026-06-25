@@ -16,6 +16,14 @@ export type Profile = {
   phone_number: string | null;
   first_name: string | null;
   last_name: string | null;
+  avatar_url?: string | null;
+  date_of_birth?: string | null;
+  address_line1?: string | null;
+  address_line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
   role: UserRole;
   status: UserStatus;
 };
