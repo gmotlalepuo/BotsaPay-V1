@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { useDeleteNotification, useNotifications, useUpdateNotifications } from '@/api/hooks';
 import { ThemedText } from '@/components/themed-text';
 import { AppButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { DropdownSelect } from '@/components/ui/dropdown-select';
 import { Screen } from '@/components/ui/screen';
 import { StateMessage } from '@/components/ui/state-message';
 import { TextField } from '@/components/ui/text-field';
@@ -74,25 +75,43 @@ export default function NotificationsTab() {
         <StateMessage title="Notifications unavailable" message={getErrorMessage(notifications.error)} />
       )}
       <Card style={styles.controls}>
-        <TextField label="Search alerts" value={search} onChangeText={(value) => { setSearch(value); setPage(1); }} />
-        <FilterRow
-          label="Read status"
-          options={readOptions}
-          value={readFilter}
-          onChange={(value) => { setReadFilter(value); setPage(1); }}
+        <TextField
+          label="Search alerts"
+          value={search}
+          onChangeText={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
         />
-        <FilterRow
-          label="Type"
-          options={typeOptions.map((value) => ({ label: value === 'all' ? 'All' : value, value }))}
-          value={typeFilter}
-          onChange={(value) => { setTypeFilter(value); setPage(1); }}
-        />
-        <FilterRow
-          label="Sort"
-          options={sortOptions}
-          value={sort}
-          onChange={(value) => { setSort(value as typeof sort); setPage(1); }}
-        />
+        <View style={styles.inlineFilters}>
+          <DropdownSelect
+            label="Read status"
+            value={readFilter}
+            options={readOptions}
+            onChange={(value) => {
+              setReadFilter(value);
+              setPage(1);
+            }}
+          />
+          <DropdownSelect
+            label="Type"
+            value={typeFilter}
+            options={typeOptions.map((value) => ({ label: value === 'all' ? 'All' : value, value }))}
+            onChange={(value) => {
+              setTypeFilter(value);
+              setPage(1);
+            }}
+          />
+          <DropdownSelect
+            label="Sort"
+            value={sort}
+            options={sortOptions}
+            onChange={(value) => {
+              setSort(value as typeof sort);
+              setPage(1);
+            }}
+          />
+        </View>
       </Card>
       {notifications.data?.length === 0 && (
         <StateMessage title="No notifications" message="New wallet and payment alerts will show up here." />
@@ -156,63 +175,14 @@ export default function NotificationsTab() {
   );
 }
 
-function FilterRow({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: readonly { label: string; value: string }[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const theme = useTheme();
-
-  return (
-    <View style={styles.filterGroup}>
-      <ThemedText type="smallBold">{label}</ThemedText>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterList}>
-        {options.map((option) => {
-          const selected = option.value === value;
-          return (
-            <Pressable
-              key={option.value}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => onChange(option.value)}
-              style={[
-                styles.chip,
-                { borderColor: theme.border, backgroundColor: theme.backgroundElement },
-                selected && { borderColor: theme.primary, backgroundColor: theme.primarySoft },
-              ]}>
-              <ThemedText type="smallBold" style={selected ? { color: theme.primary } : undefined}>
-                {option.label}
-              </ThemedText>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   controls: {
     gap: Spacing.three,
   },
-  filterGroup: {
-    gap: Spacing.one,
-  },
-  filterList: {
-    gap: Spacing.one,
-    paddingRight: Spacing.two,
-  },
-  chip: {
-    borderWidth: 1,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
+  inlineFilters: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
   },
   pagination: {
     gap: Spacing.two,
