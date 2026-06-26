@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/stores/auth-store';
 import { isSupabaseConfigured } from '@/utils/env';
@@ -61,6 +62,7 @@ export async function signUp(input: {
       email: input.email,
       password: input.password,
       options: {
+        emailRedirectTo: Linking.createURL('/callback'),
         data: {
           first_name: input.firstName,
           last_name: input.lastName,
