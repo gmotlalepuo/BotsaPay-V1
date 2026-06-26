@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
 
 import { signUp } from '@/services/auth';
 import { ThemedText } from '@/components/themed-text';
@@ -47,57 +47,37 @@ export default function SignupScreen() {
   }
 
   return (
-    <Screen title="Create account" subtitle="Open your BotsaPay customer profile and first wallet." scroll={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.keyboardContainer}
-        keyboardVerticalOffset={24}>
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.scrollContent}>
-          <Card>
-            <TextField label="First name" value={firstName} onChangeText={setFirstName} textContentType="givenName" />
-            <TextField label="Last name" value={lastName} onChangeText={setLastName} textContentType="familyName" />
-            <TextField
-              label="Phone number"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              keyboardType="phone-pad"
-              textContentType="telephoneNumber"
-            />
-            <TextField
-              label="Email"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              textContentType="emailAddress"
-            />
-            <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
-            <TextField
-              label="Confirm password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-            />
-            <AppButton label="Register" loading={loading} onPress={handleSignup} />
-            <Link href="/(auth)/login">
-              <ThemedText type="linkPrimary">Already have an account?</ThemedText>
-            </Link>
-          </Card>
-        </ScrollView>
-      </KeyboardAvoidingView>
+    <Screen title="Create account" subtitle="Open your BotsaPay customer profile and first wallet.">
+      <Card>
+        <TextField label="First name" value={firstName} onChangeText={setFirstName} textContentType="givenName" />
+        <TextField label="Last name" value={lastName} onChangeText={setLastName} textContentType="familyName" />
+        <TextField
+          label="Phone number"
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
+          keyboardType="phone-pad"
+          textContentType="telephoneNumber"
+        />
+        <TextField
+          label="Email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          textContentType="emailAddress"
+        />
+        <TextField label="Password" value={password} onChangeText={setPassword} secureTextEntry />
+        <TextField
+          label="Confirm password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          secureTextEntry
+        />
+        <AppButton label="Register" loading={loading} onPress={handleSignup} />
+        <Link href="/(auth)/login">
+          <ThemedText type="linkPrimary">Already have an account?</ThemedText>
+        </Link>
+      </Card>
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  keyboardContainer: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingBottom: 24,
-  },
-});
