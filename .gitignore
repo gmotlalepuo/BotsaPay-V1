@@ -32,9 +32,14 @@ yarn-error.*
 
 # local env files
 .env*.local
+.e2e-user.local.json
 
 # typescript
 *.tsbuildinfo
+
+# Playwright
+/playwright-report/
+/test-results/
 
 example
 

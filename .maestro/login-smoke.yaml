@@ -1,0 +1,13 @@
+appId: com.botsapay.mobile
+---
+- launchApp
+- assertVisible: "Welcome back"
+- tapOn: "Email"
+- inputText: "not-an-email"
+- tapOn: "Password"
+- inputText: "short"
+- assertVisible: "Enter a valid email address."
+- assertVisible: "Password must be at least 8 characters."
+- tapOn: "Show password"
+- assertVisible: "Hide password"
+- tapOn: "Create account"

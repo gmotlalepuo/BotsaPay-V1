@@ -1,4 +1,5 @@
 import { Link } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, StyleSheet, View } from 'react-native';
 
 import { useProfile, useWallets } from '@/api/hooks';
@@ -8,19 +9,25 @@ import { Card } from '@/components/ui/card';
 import { AppIcon, type AppIconName } from '@/components/ui/app-icon';
 import { Screen } from '@/components/ui/screen';
 import { StateMessage } from '@/components/ui/state-message';
-import { WalletCard } from '@/components/wallet/wallet-card';
 import { Spacing } from '@/constants/theme';
 import { getMissingConfig } from '@/utils/env';
 import { getErrorMessage } from '@/utils/errors';
-import { getDisplayName } from '@/utils/format';
+import { formatMoney, getDisplayName } from '@/utils/format';
 import { useTheme } from '@/hooks/use-theme';
 
 type QuickActionProps = {
-  href: '/wallet/create' | '/qr/create' | '/topup' | '/complaints';
+  href: '/qr/create' | '/topup' | '/complaints' | '/(tabs)/transactions';
   icon: AppIconName;
   label: string;
   description: string;
 };
+
+const quickTips = [
+  'Scan QR codes only from merchants and people you trust.',
+  'Review your activity often to catch unusual wallet movement early.',
+  'Use top-up before busy payment moments so checkout stays quick.',
+  'Keep your profile details current for smoother support checks.',
+];
 
 function QuickAction({ href, icon, label, description }: QuickActionProps) {
   const theme = useTheme();
@@ -36,12 +43,11 @@ function QuickAction({ href, icon, label, description }: QuickActionProps) {
           <AppIcon name={icon} size={23} tintColor={theme.primary} />
         </View>
         <View style={styles.quickCopy}>
-          <ThemedText type="smallBold">{label}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.quickDescription}>
+          <ThemedText type="smallBold" numberOfLines={1}>{label}</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.quickDescription} numberOfLines={2}>
             {description}
           </ThemedText>
         </View>
-        <AppIcon name={{ ios: 'chevron.right', android: 'chevron_right' }} size={18} tintColor={theme.textSecondary} />
       </Pressable>
     </Link>
   );
@@ -51,14 +57,26 @@ export default function HomeTab() {
   const theme = useTheme();
   const profile = useProfile();
   const wallets = useWallets();
+  const [tipIndex, setTipIndex] = useState(0);
   const missingConfig = getMissingConfig();
-  const primaryWallet = wallets.data?.[0];
+  const walletCount = wallets.data?.length ?? 0;
+  const totalCurrency = wallets.data?.[0]?.currency ?? 'BWP';
+  const totalBalance =
+    wallets.data?.reduce((sum, wallet) => sum + (wallet.currency === totalCurrency ? Number(wallet.balance) : 0), 0) ?? 0;
   const displayName = getDisplayName(profile.data?.first_name, profile.data?.last_name, profile.data?.email);
   const initials = displayName
     .split(/\s+/)
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join('');
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTipIndex((current) => (current + 1) % quickTips.length);
+    }, 20000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <Screen>
@@ -93,7 +111,26 @@ export default function HomeTab() {
       {wallets.error && (
         <StateMessage title="Wallets unavailable" message={getErrorMessage(wallets.error)} />
       )}
-      {primaryWallet && <WalletCard wallet={primaryWallet} />}
+      {wallets.data && (
+        <Card style={styles.balanceCard}>
+          <View style={styles.balanceHeader}>
+            <View>
+              <ThemedText type="small" themeColor="textSecondary">Total balance</ThemedText>
+              <ThemedText type="subtitle" style={styles.totalBalance} numberOfLines={1} adjustsFontSizeToFit>
+                {formatMoney(totalBalance, totalCurrency)}
+              </ThemedText>
+            </View>
+            <View style={[styles.walletCountBadge, { backgroundColor: theme.primarySoft }]}>
+              <ThemedText type="smallBold" style={{ color: theme.primary }}>
+                {walletCount} {walletCount === 1 ? 'wallet' : 'wallets'}
+              </ThemedText>
+            </View>
+          </View>
+          <ThemedText type="small" themeColor="textSecondary">
+            Available across your active BotsaPay wallets
+          </ThemedText>
+        </Card>
+      )}
 
       <View style={styles.actions}>
         <Link href="/transfer" asChild>
@@ -113,6 +150,18 @@ export default function HomeTab() {
         </Link>
       </View>
 
+      <Card style={styles.tipCard}>
+        <View style={[styles.tipIcon, { backgroundColor: theme.accentSoft }]}>
+          <AppIcon name={{ ios: 'lightbulb.fill', android: 'lightbulb' }} size={20} tintColor={theme.accent} />
+        </View>
+        <View style={styles.tipCopy}>
+          <ThemedText type="smallBold">Quick tip</ThemedText>
+          <ThemedText themeColor="textSecondary" style={styles.tipText}>
+            {quickTips[tipIndex]}
+          </ThemedText>
+        </View>
+      </Card>
+
       <Card style={styles.quickCard}>
         <View style={styles.sectionHeading}>
           <View>
@@ -122,16 +171,16 @@ export default function HomeTab() {
         </View>
         <View style={styles.grid}>
           <QuickAction
-            href="/wallet/create"
-            icon={{ ios: 'wallet.bifold.fill', android: 'add_card' }}
-            label="Create wallet"
-            description="Add another account"
-          />
-          <QuickAction
             href="/qr/create"
             icon={{ ios: 'qrcode', android: 'qr_code_2' }}
             label="Create QR"
             description="Request a payment"
+          />
+          <QuickAction
+            href="/(tabs)/transactions"
+            icon={{ ios: 'list.bullet.rectangle.fill', android: 'receipt_long' }}
+            label="Activity"
+            description="Review money movement"
           />
           <QuickAction
             href="/topup"
@@ -191,8 +240,47 @@ const styles = StyleSheet.create({
   primaryAction: {
     flex: 1,
   },
+  tipCard: {
+    minHeight: 86,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  tipIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tipCopy: {
+    flex: 1,
+    gap: Spacing.half,
+  },
+  tipText: {
+    lineHeight: 22,
+  },
+  balanceCard: {
+    gap: Spacing.two,
+  },
+  balanceHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
+  },
+  totalBalance: {
+    fontSize: 34,
+    lineHeight: 40,
+    letterSpacing: 0,
+  },
+  walletCountBadge: {
+    borderRadius: 999,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.one,
+  },
   quickCard: {
-    padding: Spacing.four,
+    padding: Spacing.three,
     gap: Spacing.three,
   },
   sectionHeading: {
@@ -205,16 +293,17 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: Spacing.two,
   },
   quickAction: {
-    width: '100%',
-    minHeight: 70,
+    width: '48.5%',
+    minHeight: 126,
     borderWidth: 1,
     borderRadius: 14,
-    padding: Spacing.two,
-    flexDirection: 'row',
-    alignItems: 'center',
+    padding: Spacing.three,
+    justifyContent: 'space-between',
     gap: Spacing.two,
   },
   quickIcon: {
@@ -225,7 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   quickCopy: {
-    flex: 1,
+    gap: Spacing.half,
   },
   quickDescription: {
     fontSize: 12,

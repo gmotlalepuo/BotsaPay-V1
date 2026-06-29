@@ -11,7 +11,7 @@ type TextFieldProps = TextInputProps & {
 };
 
 export const TextField = forwardRef<TextInput, TextFieldProps>(
-  ({ label, error, style, placeholderTextColor, ...props }, ref) => {
+  ({ label, error, style, placeholderTextColor, accessibilityLabel, ...props }, ref) => {
     const theme = useTheme();
 
     return (
@@ -19,6 +19,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(
         <ThemedText type="smallBold">{label}</ThemedText>
         <TextInput
           ref={ref}
+          accessibilityLabel={accessibilityLabel ?? label}
           placeholderTextColor={placeholderTextColor ?? theme.textSecondary}
           style={[
             styles.input,

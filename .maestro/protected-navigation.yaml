@@ -1,0 +1,6 @@
+appId: com.botsapay.mobile
+---
+- launchApp
+- assertVisible: "Welcome back"
+- assertVisible: "Forgot password?"
+- assertVisible: "Create account"

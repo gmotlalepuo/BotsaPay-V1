@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -19,13 +19,14 @@ export default function SignupScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const passwordMismatch = confirmPassword.length > 0 && password !== confirmPassword;
 
   async function handleSignup() {
     if (password.length < 8) {
       Alert.alert('Check password', 'Password must be at least 8 characters.');
       return;
     }
-    if (password !== confirmPassword) {
+    if (passwordMismatch) {
       Alert.alert('Check password', 'Passwords do not match.');
       return;
     }
@@ -39,8 +40,20 @@ export default function SignupScreen() {
         phoneNumber: phoneNumber.trim(),
       });
       if (!result.session) {
-        Alert.alert('Check your email', 'Confirm your email, then log in to continue.');
+        Alert.alert(
+          'Account created',
+          'Check your email to confirm your account, then sign in to continue.',
+          [
+            {
+              text: 'Go to sign in',
+              onPress: () => router.replace('/(auth)/login'),
+            },
+          ],
+          { cancelable: false },
+        );
+        return;
       }
+      router.replace('/(tabs)/home');
     } catch (error) {
       Alert.alert('Signup failed', getErrorMessage(error));
     }
@@ -72,6 +85,9 @@ export default function SignupScreen() {
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
+          autoComplete="password-new"
+          textContentType="newPassword"
+          error={passwordMismatch ? 'Passwords do not match.' : undefined}
         />
         <AppButton label="Register" loading={loading} onPress={handleSignup} />
         <Link href="/(auth)/login">

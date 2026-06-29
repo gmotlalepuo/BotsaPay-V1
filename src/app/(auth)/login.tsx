@@ -1,6 +1,6 @@
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Image, StyleSheet, View } from 'react-native';
+import { Alert, Image, StyleSheet, View, useWindowDimensions } from 'react-native';
 
 import { signIn } from '@/services/auth';
 import { ThemedText } from '@/components/themed-text';
@@ -15,10 +15,12 @@ import { getErrorMessage } from '@/utils/errors';
 
 export default function LoginScreen() {
   const theme = useTheme();
+  const { height } = useWindowDimensions();
   const loading = useAuthStore((state) => state.loading);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const isCompactHeight = height < 740;
   const emailError = email.length > 0 && !email.includes('@') ? 'Enter a valid email address.' : undefined;
   const passwordError = password.length > 0 && password.length < 8 ? 'Password must be at least 8 characters.' : undefined;
 
@@ -38,17 +40,21 @@ export default function LoginScreen() {
   return (
     <Screen
       showBackButton={false}
-      style={styles.screen}>
-      <View style={styles.brand}>
-        <Image source={require('../../../assets/images/botsapay-logo.png')} style={styles.logo} resizeMode="contain" />
-        <ThemedText type="subtitle" style={styles.title}>
+      style={[styles.screen, isCompactHeight && styles.screenCompact]}>
+      <View style={[styles.brand, isCompactHeight && styles.brandCompact]}>
+        <Image
+          source={require('../../../assets/images/botsapay-logo.png')}
+          style={[styles.logo, isCompactHeight && styles.logoCompact]}
+          resizeMode="contain"
+        />
+        <ThemedText type="subtitle" style={[styles.title, isCompactHeight && styles.titleCompact]}>
           Welcome back
         </ThemedText>
-        <ThemedText themeColor="textSecondary" style={styles.subtitle}>
+        <ThemedText themeColor="textSecondary" style={[styles.subtitle, isCompactHeight && styles.subtitleCompact]}>
           Sign in securely to manage wallets, transfers, QR payments, and activity.
         </ThemedText>
       </View>
-      <Card style={styles.card}>
+      <Card style={[styles.card, isCompactHeight && styles.cardCompact]}>
         <TextField
           label="Email"
           value={email}
@@ -89,7 +95,7 @@ export default function LoginScreen() {
           </Link>
         </View>
       </Card>
-      <View style={[styles.securityNote, { backgroundColor: theme.primarySoft }]}>
+      <View style={[styles.securityNote, isCompactHeight && styles.securityNoteCompact, { backgroundColor: theme.primarySoft }]}>
         <ThemedText type="smallBold" style={{ color: theme.primary }}>
           Protected by secure session storage and device confirmation for payments.
         </ThemedText>
@@ -102,32 +108,55 @@ const styles = StyleSheet.create({
   screen: {
     justifyContent: 'center',
   },
+  screenCompact: {
+    justifyContent: 'flex-start',
+    gap: Spacing.two,
+  },
   brand: {
     alignItems: 'center',
     gap: Spacing.two,
     paddingTop: Spacing.four,
+  },
+  brandCompact: {
+    gap: Spacing.one,
+    paddingTop: 0,
   },
   logo: {
     width: '86%',
     maxWidth: 340,
     height: 136,
   },
+  logoCompact: {
+    width: '66%',
+    height: 84,
+  },
   title: {
     fontSize: 30,
     lineHeight: 36,
     textAlign: 'center',
+  },
+  titleCompact: {
+    fontSize: 26,
+    lineHeight: 31,
   },
   subtitle: {
     maxWidth: 360,
     textAlign: 'center',
     lineHeight: 22,
   },
+  subtitleCompact: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
   card: {
     gap: Spacing.three,
   },
+  cardCompact: {
+    gap: Spacing.two,
+  },
   passwordToggle: {
     alignSelf: 'flex-end',
-    minHeight: 32,
+    minHeight: 44,
     paddingHorizontal: 0,
   },
   links: {
@@ -138,5 +167,8 @@ const styles = StyleSheet.create({
   securityNote: {
     borderRadius: 14,
     padding: Spacing.three,
+  },
+  securityNoteCompact: {
+    padding: Spacing.two,
   },
 });

@@ -13,9 +13,11 @@ type AppIconProps = Omit<ComponentProps<typeof SymbolView>, 'name'> & {
 
 export function AppIcon({ name, size = 24, ...props }: AppIconProps) {
   if (typeof name !== 'string' && Platform.OS !== 'ios' && name.android) {
+    const materialIconName = name.android.replace(/_/g, '-') as ComponentProps<typeof MaterialIcons>['name'];
+
     return (
       <MaterialIcons
-        name={name.android as ComponentProps<typeof MaterialIcons>['name']}
+        name={materialIconName}
         size={size}
         color={props.tintColor}
       />
